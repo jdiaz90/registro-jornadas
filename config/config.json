@@ -1,0 +1,11 @@
+{
+    "development": {
+      "username": "postgres",
+      "password": "tu_contraseña_segura",
+      "database": "registro_jornadas",
+      "host": "localhost",
+      "port": 5432,
+      "dialect": "postgres"
+    }
+  }
+  

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Fichaje</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+  
+<body>
+  <h1>Bienvenido, <%= empleado.nombre %> <%= empleado.apellidos %>!</h1>
+  <h2>Registro de Fichaje</h2>
+  
+  <!-- Botón/Formulario para Registrar Entrada -->
+  <form action="/api/empleados/<%= empleado.id %>/entrada" method="POST">
+    <button type="submit">Registrar Entrada</button>
+  </form>
+  
+  <!-- Botón/Formulario para Registrar Salida -->
+  <form action="/api/empleados/<%= empleado.id %>/salida" method="POST">
+    <button type="submit">Registrar Salida</button>
+  </form>
+  
+  <p><a href="/logout">Cerrar sesión</a></p>
+</body>
+</html>
