@@ -1,6 +1,6 @@
 // models/registro.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../database/database');
+const sequelize = require('../database');
 
 const Registro = sequelize.define('Registro', {
   tipo: {
@@ -27,7 +27,7 @@ const Registro = sequelize.define('Registro', {
     onDelete: 'CASCADE', // Borra los registros asociados si se elimina el empleado
   },
 }, {
-  timestamps: false,
+  timestamps: true,
   indexes: [
     {
       fields: ['fechaHora'],

@@ -13,12 +13,25 @@ exports.createEmpleado = async (req, res) => {
 exports.registrarEntrada = async (req, res) => {
   try {
     if (parseInt(req.params.id) !== req.empleado.id) {
-      return res.status(403).json({ error: 'No estás autorizado para fichar en nombre de otro empleado' });
+      req.session.error = 'No estás autorizado para fichar en nombre de otro empleado';
+      return res.redirect('/dashboard');
     }
 
     const empleado = await Empleado.findByPk(req.params.id);
     if (!empleado) {
-      return res.status(404).json({ error: 'Empleado no encontrado' });
+      req.session.error = 'Empleado no encontrado';
+      return res.redirect('/dashboard');
+    }
+
+    // Verificar el último registro
+    const ultimoRegistro = await Registro.findOne({
+      where: { EmpleadoId: empleado.id },
+      order: [['createdAt', 'DESC']]
+    });
+
+    if (ultimoRegistro && ultimoRegistro.tipo === 'entrada') {
+      req.session.error = 'No puedes registrar una entrada cuando la última acción fue una entrada';
+      return res.redirect('/dashboard');
     }
 
     const registro = await Registro.create({
@@ -26,21 +39,41 @@ exports.registrarEntrada = async (req, res) => {
       EmpleadoId: empleado.id
     });
 
-    res.json(registro);
+    req.session.success = 'Entrada registrada correctamente';
+    res.redirect('/dashboard');
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    req.session.error = error.message;
+    res.redirect('/dashboard');
   }
 };
 
 exports.registrarSalida = async (req, res) => {
   try {
     if (parseInt(req.params.id) !== req.empleado.id) {
-      return res.status(403).json({ error: 'No estás autorizado para fichar en nombre de otro empleado' });
+      req.session.error = 'No estás autorizado para fichar en nombre de otro empleado';
+      return res.redirect('/dashboard');
     }
 
     const empleado = await Empleado.findByPk(req.params.id);
     if (!empleado) {
-      return res.status(404).json({ error: 'Empleado no encontrado' });
+      req.session.error = 'Empleado no encontrado';
+      return res.redirect('/dashboard');
+    }
+
+    // Verificar el último registro
+    const ultimoRegistro = await Registro.findOne({
+      where: { EmpleadoId: empleado.id },
+      order: [['createdAt', 'DESC']]
+    });
+
+    if (!ultimoRegistro) {
+      req.session.error = 'No puedes registrar una salida sin haber registrado una entrada primero';
+      return res.redirect('/dashboard');
+    }
+
+    if (ultimoRegistro.tipo === 'salida') {
+      req.session.error = 'No puedes registrar una salida cuando la última acción fue una salida';
+      return res.redirect('/dashboard');
     }
 
     const registro = await Registro.create({
@@ -48,8 +81,10 @@ exports.registrarSalida = async (req, res) => {
       EmpleadoId: empleado.id
     });
 
-    res.json(registro);
+    req.session.success = 'Salida registrada correctamente';
+    res.redirect('/dashboard');
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    req.session.error = error.message;
+    res.redirect('/dashboard');
   }
 };

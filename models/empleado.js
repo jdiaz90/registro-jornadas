@@ -1,6 +1,6 @@
 // models/empleado.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../database/database');
+const sequelize = require('../database');
 
 const Empleado = sequelize.define('Empleado', {
   // Campo ID: definido explícitamente aunque Sequelize lo genera por defecto

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registros de Entrada y Salida</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+  <%- include('partials/menu') %>
+
+  <div class="container mt-5">
+    <h1 class="text-center">Registros de Entrada y Salida</h1>
+    <form class="row g-3 mb-4" method="GET" action="/registros">
+      <div class="col-md-4">
+        <label for="mes" class="form-label">Mes</label>
+        <select class="form-select" id="mes" name="mes">
+          <option value="">Selecciona un mes</option>
+          <% for (let i = 1; i <= 12; i++) { %>
+            <option value="<%= i %>" <%= mes == i ? 'selected' : '' %>><%= new Date(0, i - 1).toLocaleString('es', { month: 'long' }) %></option>
+          <% } %>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="año" class="form-label">Año</label>
+        <input type="number" class="form-control" id="año" name="año" value="<%= año %>" placeholder="Ej: 2025">
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+      </div>
+    </form>
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Fecha de Entrada</th>
+          <th>Fecha de Salida</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% paresRegistros.forEach(par => { %>
+          <tr>
+            <td><%= par.entrada.fechaHora.toLocaleString('es-ES') %></td>
+            <td><%= par.salida ? par.salida.fechaHora.toLocaleString('es-ES') : '' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

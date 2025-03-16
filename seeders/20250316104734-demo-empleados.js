@@ -15,7 +15,7 @@ module.exports = {
     // Definición de los dos empleados fijos.
     const fixedEmployees = [
       {
-        dni: generateDNIorNIE(),
+        dni: "12345678A",
         nombre: 'Juan',
         apellidos: 'Pérez',
         email: 'juan@example.com',
@@ -26,7 +26,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        dni: generateDNIorNIE(),
+        dni: "87654321B",
         nombre: 'María',
         apellidos: 'Gómez',
         email: 'maria@example.com',
