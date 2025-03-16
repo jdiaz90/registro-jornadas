@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empleados</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function sortTable(column) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentSort = urlParams.get('sort');
+      const currentOrder = urlParams.get('order');
+      let newOrder = 'asc';
+
+      if (currentSort === column && currentOrder === 'asc') {
+        newOrder = 'desc';
+      }
+
+      urlParams.set('sort', column);
+      urlParams.set('order', newOrder);
+      window.location.search = urlParams.toString();
+    }
+  </script>
+</head>
+<body>
+  <%- include('../partials/menu', { empleado: empleado }) %>
+
+  <div class="container mt-5">
+    <h1 class="text-center">Lista de Empleados</h1>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th><a href="#" onclick="sortTable('id')">ID</a></th>
+          <th><a href="#" onclick="sortTable('nombre')">Nombre</a></th>
+          <th><a href="#" onclick="sortTable('apellidos')">Apellidos</a></th>
+          <th><a href="#" onclick="sortTable('email')">Email</a></th>
+          <th><a href="#" onclick="sortTable('dni')">DNI</a></th>
+          <th><a href="#" onclick="sortTable('puesto')">Puesto</a></th>
+          <th><a href="#" onclick="sortTable('isAdmin')">Administrador</a></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% empleados.forEach(empleado => { %>
+          <tr>
+            <td><%= empleado.id %></td>
+            <td><%= empleado.nombre %></td>
+            <td><%= empleado.apellidos %></td>
+            <td><%= empleado.email %></td>
+            <td><%= empleado.dni %></td>
+            <td><%= empleado.puesto %></td>
+            <td><%= empleado.isAdmin ? 'Sí' : 'No' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

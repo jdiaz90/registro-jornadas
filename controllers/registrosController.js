@@ -42,7 +42,7 @@ exports.showRegistros = async (req, res) => {
 
     paresRegistros.reverse(); // Mostrar los registros más recientes primero
 
-    res.render('registros', { paresRegistros, mes, año });
+    res.render('registros', { paresRegistros, mes, año, empleado: req.empleado });
   } catch (error) {
     console.error('Error al obtener los registros:', error);
     res.status(500).send('Error al obtener los registros');

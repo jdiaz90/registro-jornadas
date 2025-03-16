@@ -6,7 +6,7 @@ const Empleado = require('../models/empleado');
 exports.showLogin = (req, res) => {
   const error = req.session.error || null;
   req.session.error = null; // Limpiar el mensaje de error después de mostrarlo
-  res.render('login', { error });
+  res.render('login', { error, empleado: null });
 };
 
 exports.login = async (req, res) => {
@@ -21,13 +21,13 @@ exports.login = async (req, res) => {
 
     if (!empleado) {
       req.session.error = 'Empleado no encontrado';
-      return res.redirect('/login');
+      return res.redirect('/auth/login');
     }
 
     const validPassword = await bcrypt.compare(password, empleado.password);
     if (!validPassword) {
       req.session.error = 'Contraseña incorrecta';
-      return res.redirect('/login');
+      return res.redirect('/auth/login');
     }
 
     const token = jwt.sign(
@@ -41,11 +41,11 @@ exports.login = async (req, res) => {
   } catch (error) {
     console.error('Error en el login:', error);
     req.session.error = 'Error al procesar la solicitud';
-    res.redirect('/login');
+    res.redirect('/auth/login');
   }
 };
 
 exports.logout = (req, res) => {
   res.clearCookie('token');
-  res.redirect('/login');
+  res.redirect('/auth/login');
 };
