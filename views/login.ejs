@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login de Empleados</title>
+  <title>Iniciar Sesión</title>
   <link rel="stylesheet" href="/css/bootstrap.min.css">
   <script src="/js/bootstrap.bundle.min.js"></script>
 </head>
@@ -16,25 +16,23 @@
       <div class="col-md-6">
         <div class="card">
           <div class="card-header text-center">
-            <h1>Inicia Sesión</h1>
+            <h1>Iniciar Sesión</h1>
           </div>
           <div class="card-body">
             <!-- Muestra mensajes de error, si los hubiera -->
-            <% if (typeof error !== 'undefined') { %>
-              <div class="alert alert-danger" role="alert">
-                <%= error %>
-              </div>
+            <% if (error) { %>
+              <div class="alert alert-danger"><%= error %></div>
             <% } %>
-            <form action="/login" method="POST">
+            <form action="/auth/login" method="POST">
               <div class="mb-3">
-                <label for="identifier" class="form-label">DNI / Email:</label>
+                <label for="identifier" class="form-label">DNI o Email</label>
                 <input type="text" class="form-control" id="identifier" name="identifier" required>
               </div>
               <div class="mb-3">
-                <label for="password" class="form-label">Contraseña:</label>
+                <label for="password" class="form-label">Contraseña</label>
                 <input type="password" class="form-control" id="password" name="password" required>
               </div>
-              <button type="submit" class="btn btn-primary w-100">Entrar</button>
+              <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
             </form>
           </div>
         </div>

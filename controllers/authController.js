@@ -4,7 +4,9 @@ const { Op } = require('sequelize');
 const Empleado = require('../models/empleado');
 
 exports.showLogin = (req, res) => {
-  res.render('login');
+  const error = req.session.error || null;
+  req.session.error = null; // Limpiar el mensaje de error después de mostrarlo
+  res.render('login', { error });
 };
 
 exports.login = async (req, res) => {
@@ -18,12 +20,14 @@ exports.login = async (req, res) => {
     });
 
     if (!empleado) {
-      return res.render('login', { error: 'Empleado no encontrado' });
+      req.session.error = 'Empleado no encontrado';
+      return res.redirect('/login');
     }
 
     const validPassword = await bcrypt.compare(password, empleado.password);
     if (!validPassword) {
-      return res.render('login', { error: 'Contraseña incorrecta' });
+      req.session.error = 'Contraseña incorrecta';
+      return res.redirect('/login');
     }
 
     const token = jwt.sign(
@@ -36,7 +40,8 @@ exports.login = async (req, res) => {
     res.redirect('/dashboard');
   } catch (error) {
     console.error('Error en el login:', error);
-    res.render('login', { error: 'Error al procesar la solicitud' });
+    req.session.error = 'Error al procesar la solicitud';
+    res.redirect('/login');
   }
 };
 

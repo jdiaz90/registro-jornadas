@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil del Empleado</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+  <%- include('partials/menu') %>
+
+  <div class="container mt-5">
+    <h1 class="text-center">Perfil del Empleado</h1>
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title"><%= empleado.nombre %> <%= empleado.apellidos %></h5>
+        <p class="card-text"><strong>DNI:</strong> <%= empleado.dni %></p>
+        <p class="card-text"><strong>Email:</strong> <%= empleado.email %></p>
+        <p class="card-text"><strong>Puesto:</strong> <%= empleado.puesto %></p>
+        <p class="card-text"><strong>Administrador:</strong> <%= empleado.isAdmin ? 'Sí' : 'No' %></p>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <h2>Cambiar Contraseña</h2>
+      <% if (mensaje) { %>
+        <div class="alert alert-<%= tipoMensaje === 'exito' ? 'success' : 'danger' %>"><%= mensaje %></div>
+      <% } %>
+      <form action="/perfil/cambiar-contrasena" method="POST">
+        <div class="mb-3">
+          <label for="nuevaContrasena" class="form-label">Nueva Contraseña</label>
+          <input type="password" class="form-control" id="nuevaContrasena" name="nuevaContrasena" required>
+        </div>
+        <div class="mb-3">
+          <label for="confirmarContrasena" class="form-label">Confirmar Contraseña</label>
+          <input type="password" class="form-control" id="confirmarContrasena" name="confirmarContrasena" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

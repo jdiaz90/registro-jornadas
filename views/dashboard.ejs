@@ -19,15 +19,9 @@
       </div>
     </div>
 
-    <% if (typeof error !== 'undefined' && error) { %>
-      <div class="alert alert-danger" role="alert">
-        <%= error %>
-      </div>
-    <% } %>
-
-    <% if (typeof success !== 'undefined' && success) { %>
-      <div class="alert alert-success" role="alert">
-        <%= success %>
+    <% if (mensaje) { %>
+      <div class="alert alert-<%= tipoMensaje === 'exito' ? 'success' : 'danger' %>" role="alert">
+        <%= mensaje %>
       </div>
     <% } %>
 

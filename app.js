@@ -26,10 +26,7 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Monta las rutas
-app.use('/', require('./routes/auth'));
-app.use('/api/empleados', require('./routes/empleados'));
-app.use('/dashboard', require('./routes/dashboard'));
-app.use('/registros', require('./routes/registros')); // Monta la nueva ruta
+app.use('/', require('./routes/index')); // Monta el archivo de rutas principal
 
 // Inicia el servidor en el puerto definido o 3000 por defecto.
 const PORT = process.env.PORT || 3000;

@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const empleadoController = require('../controllers/empleadoController');
-const verificarToken = require('../middlewares/auth');
+const verificarToken = require('../middlewares/verificarToken');
 
 router.post('/', empleadoController.createEmpleado);
 router.post('/:id/entrada', verificarToken, empleadoController.registrarEntrada);
