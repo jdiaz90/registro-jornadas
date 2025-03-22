@@ -22,7 +22,9 @@
     "jsonwebtoken": "^9.0.2",
     "pdfkit": "^0.16.0",
     "pg": "^8.14.0",
-    "sequelize": "^6.37.6"
+    "sequelize": "^6.37.6",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.6.0",

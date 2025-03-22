@@ -5,7 +5,8 @@ module.exports = async (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) {
-    return res.redirect('/auth/login');
+    req.empleado = null; // Asegurarse de que req.empleado esté definido
+    return next();
   }
 
   try {
@@ -13,13 +14,15 @@ module.exports = async (req, res, next) => {
     const empleado = await Empleado.findByPk(decoded.id);
 
     if (!empleado) {
-      return res.redirect('/auth/login');
+      req.empleado = null;
+      return next();
     }
 
-    req.empleado = empleado;
+    req.empleado = empleado; // Agregar el empleado autenticado al objeto req
     next();
   } catch (error) {
     console.error('Error al verificar el token:', error);
-    res.redirect('/auth/login');
+    req.empleado = null;
+    next();
   }
 };

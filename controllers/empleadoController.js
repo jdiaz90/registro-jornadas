@@ -99,3 +99,38 @@ exports.registrarSalida = async (req, res) => {
     res.redirect('/dashboard');
   }
 };
+
+exports.registrarEntradaSalida = async (req, res) => {
+  try {
+    const { tipo, observacion } = req.body;
+    const empleadoId = req.empleado.id;
+
+    // Verificar el último registro del empleado
+    const ultimoRegistro = await Registro.findOne({
+      where: { EmpleadoId: empleadoId },
+      order: [['createdAt', 'DESC']]
+    });
+
+    if (ultimoRegistro && ultimoRegistro.tipo === tipo) {
+      req.session.mensaje = `No puedes registrar una ${tipo} consecutiva`;
+      req.session.tipoMensaje = 'error'; // Tipo de mensaje: error
+      return res.redirect('/dashboard');
+    }
+
+    // Crear el nuevo registro
+    await Registro.create({
+      tipo,
+      observacion,
+      EmpleadoId: empleadoId
+    });
+
+    req.session.mensaje = `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} registrada correctamente`;
+    req.session.tipoMensaje = 'success'; // Tipo de mensaje: success
+    res.redirect('/dashboard');
+  } catch (error) {
+    console.error('Error al registrar entrada/salida:', error);
+    req.session.mensaje = 'Error al registrar entrada/salida';
+    req.session.tipoMensaje = 'error'; // Tipo de mensaje: error
+    res.redirect('/dashboard');
+  }
+};

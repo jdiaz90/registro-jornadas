@@ -4,6 +4,9 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const jwt = require('jsonwebtoken');
 const sequelize = require('./database');
+const verificarToken = require('./middlewares/verificarToken');
+const logController = require('./middlewares/logController');
+const logger = require('./utils/logger');
 
 const app = express();
 
@@ -22,11 +25,45 @@ app.use(session({
   cookie: { secure: false } // Cambia a true si usas HTTPS
 }));
 
+// Middleware para verificar el token
+app.use(verificarToken);
+
+// Middleware para registrar los controladores ejecutados
+app.use(logController);
+
 // Servir archivos estáticos (CSS, imágenes, JS) desde la carpeta public
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/css', express.static('public/css'));
+app.use('/js', express.static('public/js'));
 
 // Monta las rutas
 app.use('/', require('./routes/index')); // Monta el archivo de rutas principal
+
+// Middleware para manejar errores globales
+app.use((err, req, res, next) => {
+  const now = new Date();
+  const localTime = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); // Ajuste de +1 hora
+
+  logger.error(`[EXCEPTION] [${localTime}] ${err.message}`);
+  logger.error(`[STACK TRACE] ${err.stack}`);
+
+  res.status(500).send('Ocurrió un error inesperado. Por favor, inténtalo más tarde.');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  const now = new Date();
+  const localTime = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); // Ajuste de +1 hora
+
+  logger.error(`[UNHANDLED REJECTION] [${localTime}] ${reason}`);
+});
+
+process.on('uncaughtException', (error) => {
+  const now = new Date();
+  const localTime = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); // Ajuste de +1 hora
+
+  logger.error(`[UNCAUGHT EXCEPTION] [${localTime}] ${error.message}`);
+  logger.error(`[STACK TRACE] ${error.stack}`);
+  process.exit(1); // Salir del proceso después de registrar la excepción
+});
 
 // Inicia el servidor en el puerto definido o 3000 por defecto.
 const PORT = process.env.PORT || 3000;
