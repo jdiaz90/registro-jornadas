@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registros de <%= empleado.nombre %> <%= empleado.apellidos %></title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <script src="/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+  <%- include('../partials/menu', { empleado: empleadoAdmin }) %>
+
+  <div class="container mt-5">
+    <h1 class="text-center">Registros de <%= empleado.nombre %> <%= empleado.apellidos %></h1>
+
+    <!-- Formulario para filtrar registros -->
+    <form class="row g-3 mb-4" method="GET" action="/admin/empleados/<%= empleado.id %>/registros">
+      <div class="col-md-4">
+        <label for="mes" class="form-label">Mes</label>
+        <select class="form-select" id="mes" name="mes">
+          <option value="">Selecciona un mes</option>
+          <% for (let i = 1; i <= 12; i++) { %>
+            <option value="<%= i %>" <%= mes == i ? 'selected' : '' %>><%= new Date(0, i - 1).toLocaleString('es', { month: 'long' }) %></option>
+          <% } %>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="año" class="form-label">Año</label>
+        <input type="number" class="form-control" id="año" name="año" value="<%= año %>" placeholder="Ej: 2025">
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+      </div>
+    </form>
+
+    <!-- Botones para descargar registros -->
+    <div class="mb-4">
+      <a href="/admin/empleados/<%= empleado.id %>/registros/descargar/xlsx" class="btn btn-success">Descargar XLSX</a>
+      <a href="/admin/empleados/<%= empleado.id %>/registros/descargar/pdf" class="btn btn-danger">Descargar PDF</a>
+    </div>
+
+    <!-- Tabla de registros -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Fecha y Hora</th>
+          <th>Observación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% registros.forEach(registro => { %>
+          <tr>
+            <td><%= registro.tipo %></td>
+            <td><%= registro.fechaHora.toLocaleString('es-ES') %></td>
+            <td><%= registro.observacion || 'N/A' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <a href="/admin/empleados" class="btn btn-secondary">Volver</a>
+  </div>
+</body>
+</html>

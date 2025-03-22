@@ -2,7 +2,7 @@ const logger = require('../utils/logger');
 
 module.exports = (req, res, next) => {
   // Excluir solicitudes a recursos estáticos
-  if (req.originalUrl.startsWith('/css') || req.originalUrl.startsWith('/js') || req.originalUrl.startsWith('/images')) {
+  if (req.originalUrl.startsWith('/css') || req.originalUrl.startsWith('/js') || req.originalUrl.startsWith('/images') || req.originalUrl.startsWith('/favicon.ico')) {
     return next();
   }
 

@@ -7,6 +7,7 @@ const verificarToken = require('../middlewares/verificarToken');
 
 router.get('/', verificarToken, registrosController.showRegistros);
 router.get('/descargar/xlsx', verificarToken, descargarXlsxController.descargarXlsx);
+// Ruta para que un empleado descargue sus propios registros en PDF
 router.get('/descargar/pdf', verificarToken, descargarPdfController.descargarPdf);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const favicon = require('serve-favicon');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const jwt = require('jsonwebtoken');
@@ -32,6 +33,7 @@ app.use(verificarToken);
 app.use(logController);
 
 // Servir archivos estáticos (CSS, imágenes, JS) desde la carpeta public
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use('/css', express.static('public/css'));
 app.use('/js', express.static('public/js'));
 
