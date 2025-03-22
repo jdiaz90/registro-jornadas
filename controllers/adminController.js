@@ -50,13 +50,24 @@ exports.verRegistrosEmpleado = async (req, res) => {
 
     // Filtrar registros por mes y año si se proporcionan
     let where = { EmpleadoId: empleadoId };
-    if (mes && año) {
-      where.fechaHora = {
-        [Sequelize.Op.between]: [
-          new Date(año, mes - 1, 1),
-          new Date(año, mes, 0),
-        ],
-      };
+    if (año) {
+      if (mes) {
+        // Filtrar por mes y año
+        where.fechaHora = {
+          [Sequelize.Op.between]: [
+            new Date(año, mes - 1, 1), // Primer día del mes
+            new Date(año, mes, 0),     // Último día del mes
+          ],
+        };
+      } else {
+        // Filtrar por todo el año
+        where.fechaHora = {
+          [Sequelize.Op.between]: [
+            new Date(año, 0, 1),       // Primer día del año
+            new Date(año, 11, 31, 23, 59, 59), // Último día del año
+          ],
+        };
+      }
     }
 
     // Configurar paginación

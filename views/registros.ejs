@@ -24,7 +24,7 @@
       </div>
       <div class="col-md-4">
         <label for="año" class="form-label">Año</label>
-        <input type="number" class="form-control" id="año" name="año" value="<%= año %>" placeholder="Ej: 2025">
+        <input type="number" class="form-control" id="año" name="año" value="<%= año %>" placeholder="Ej: 2025" min="2020">
       </div>
       <div class="col-md-4 d-flex align-items-end">
         <button type="submit" class="btn btn-primary w-100">Filtrar</button>
@@ -40,15 +40,17 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Entrada</th>
-          <th>Salida</th>
+          <th>Tipo</th>
+          <th>Fecha y Hora</th>
+          <th>Observación</th>
         </tr>
       </thead>
       <tbody>
-        <% paresRegistros.forEach(par => { %>
+        <% registros.forEach(registro => { %>
           <tr>
-            <td><%= par.entrada ? par.entrada.createdAt.toLocaleString('es-ES') : 'N/A' %></td>
-            <td><%= par.salida ? par.salida.createdAt.toLocaleString('es-ES') : 'N/A' %></td>
+            <td><%= registro.tipo %></td>
+            <td><%= registro.fechaHora.toLocaleString('es-ES') %></td>
+            <td><%= registro.observacion || 'N/A' %></td>
           </tr>
         <% }) %>
       </tbody>

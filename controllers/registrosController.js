@@ -2,17 +2,29 @@ const Registro = require('../models/registro');
 const { Op } = require('sequelize');
 
 exports.showRegistros = async (req, res) => {
-  const { mes, año, page = 1, limit = 50 } = req.query; // Página y límite con valores predeterminados
+  const { mes, año, page = 1, limit = 10 } = req.query; // Página y límite con valores predeterminados
   const empleadoId = req.empleado.id;
 
+  // Filtrar por empleado y, opcionalmente, por mes y año
   let where = { EmpleadoId: empleadoId };
-  if (mes && año) {
-    where.createdAt = {
-      [Op.between]: [
-        new Date(año, mes - 1, 1),
-        new Date(año, mes, 0),
-      ],
-    };
+  if (año) {
+    if (mes) {
+      // Filtrar por mes y año
+      where.fechaHora = {
+        [Op.between]: [
+          new Date(año, mes - 1, 1), // Primer día del mes
+          new Date(año, mes, 0),     // Último día del mes
+        ],
+      };
+    } else {
+      // Filtrar por todo el año
+      where.fechaHora = {
+        [Op.between]: [
+          new Date(año, 0, 1),       // Primer día del año
+          new Date(año, 11, 31, 23, 59, 59), // Último día del año
+        ],
+      };
+    }
   }
 
   try {
@@ -22,39 +34,15 @@ exports.showRegistros = async (req, res) => {
     // Obtener registros con paginación
     const { count, rows: registros } = await Registro.findAndCountAll({
       where,
-      order: [['createdAt', 'ASC']],
+      order: [['fechaHora', 'DESC']], // Ordenar por `fechaHora`
       limit: parseInt(limit),
       offset: parseInt(offset),
     });
 
-    // Emparejar registros de entrada y salida
-    const paresRegistros = [];
-    let entrada = null;
-
-    registros.forEach((registro) => {
-      if (registro.tipo === 'entrada') {
-        if (entrada) {
-          // Si ya hay una entrada sin emparejar, agregarla sin salida
-          paresRegistros.push({ entrada, salida: null });
-        }
-        entrada = registro;
-      } else if (registro.tipo === 'salida' && entrada) {
-        paresRegistros.push({ entrada, salida: registro });
-        entrada = null;
-      }
-    });
-
-    // Si queda una entrada sin emparejar, agregarla sin salida
-    if (entrada) {
-      paresRegistros.push({ entrada, salida: null });
-    }
-
-    paresRegistros.reverse(); // Mostrar los registros más recientes primero
-
     const totalPages = Math.ceil(count / limit);
 
     res.render('registros', {
-      paresRegistros,
+      registros,
       mes,
       año,
       empleado: req.empleado,
