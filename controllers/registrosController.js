@@ -2,7 +2,7 @@ const Registro = require('../models/registro');
 const { Op } = require('sequelize');
 
 exports.showRegistros = async (req, res) => {
-  const { mes, año } = req.query;
+  const { mes, año, page = 1, limit = 50 } = req.query; // Página y límite con valores predeterminados
   const empleadoId = req.empleado.id;
 
   let where = { EmpleadoId: empleadoId };
@@ -10,19 +10,28 @@ exports.showRegistros = async (req, res) => {
     where.createdAt = {
       [Op.between]: [
         new Date(año, mes - 1, 1),
-        new Date(año, mes, 0)
-      ]
+        new Date(año, mes, 0),
+      ],
     };
   }
 
   try {
-    const registros = await Registro.findAll({ where, order: [['createdAt', 'ASC']] });
+    // Configurar paginación
+    const offset = (page - 1) * limit;
+
+    // Obtener registros con paginación
+    const { count, rows: registros } = await Registro.findAndCountAll({
+      where,
+      order: [['createdAt', 'ASC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+    });
 
     // Emparejar registros de entrada y salida
     const paresRegistros = [];
     let entrada = null;
 
-    registros.forEach(registro => {
+    registros.forEach((registro) => {
       if (registro.tipo === 'entrada') {
         if (entrada) {
           // Si ya hay una entrada sin emparejar, agregarla sin salida
@@ -42,7 +51,16 @@ exports.showRegistros = async (req, res) => {
 
     paresRegistros.reverse(); // Mostrar los registros más recientes primero
 
-    res.render('registros', { paresRegistros, mes, año, empleado: req.empleado });
+    const totalPages = Math.ceil(count / limit);
+
+    res.render('registros', {
+      paresRegistros,
+      mes,
+      año,
+      empleado: req.empleado,
+      pagination: { page: parseInt(page), totalPages },
+      query: req.query,
+    });
   } catch (error) {
     console.error('Error al obtener los registros:', error);
     res.status(500).send('Error al obtener los registros');

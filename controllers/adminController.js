@@ -6,22 +6,29 @@ const fs = require('fs'); // Para registrar errores en un archivo de log
 
 exports.verEmpleados = async (req, res) => {
   try {
-    const empleados = await Empleado.findAll();
+    const page = parseInt(req.query.page) || 1; // Página actual (por defecto 1)
+    const limit = parseInt(req.query.limit) || 10; // Elementos por página (por defecto 10)
+    const offset = (page - 1) * limit; // Calcular el desplazamiento
 
-    // Pasar mensaje de sesión y empleado autenticado a la vista
-    const mensaje = req.session.mensaje || null;
-    const tipoMensaje = req.session.tipoMensaje || null;
+    const { count, rows: empleados } = await Empleado.findAndCountAll({
+      order: [[req.query.sort || 'id', req.query.order === 'desc' ? 'DESC' : 'ASC']],
+      limit,
+      offset,
+    });
 
-    // Limpiar mensaje de sesión
-    req.session.mensaje = null;
-    req.session.tipoMensaje = null;
+    const totalPages = Math.ceil(count / limit);
 
     res.render('admin/empleados', {
       empleados,
-      mensaje,
-      tipoMensaje,
-      empleado: req.empleado, // Pasar el empleado autenticado
+      mensaje: req.session.mensaje || null,
+      tipoMensaje: req.session.tipoMensaje || null,
+      empleado: req.empleado,
+      query: req.query,
+      pagination: { page, totalPages },
     });
+
+    req.session.mensaje = null;
+    req.session.tipoMensaje = null;
   } catch (error) {
     console.error('Error al obtener la lista de empleados:', error);
     res.status(500).send('Error al obtener la lista de empleados.');
@@ -45,20 +52,37 @@ exports.verRegistrosEmpleado = async (req, res) => {
     let where = { EmpleadoId: empleadoId };
     if (mes && año) {
       where.fechaHora = {
-        [Op.between]: [
+        [Sequelize.Op.between]: [
           new Date(año, mes - 1, 1),
           new Date(año, mes, 0),
         ],
       };
     }
 
-    // Obtener los registros del empleado
-    const registros = await Registro.findAll({
+    // Configurar paginación
+    const page = parseInt(req.query.page) || 1; // Página actual (por defecto 1)
+    const limit = parseInt(req.query.limit) || 10; // Elementos por página (por defecto 10)
+    const offset = (page - 1) * limit; // Calcular el desplazamiento
+
+    // Obtener los registros del empleado con paginación
+    const { count, rows: registros } = await Registro.findAndCountAll({
       where,
-      order: [['fechaHora', 'ASC']],
+      order: [['fechaHora', 'DESC']],
+      limit,
+      offset,
     });
 
-    res.render('admin/registros', { empleado, registros, mes, año, empleadoAdmin: req.empleado });
+    const totalPages = Math.ceil(count / limit);
+
+    res.render('admin/registros', {
+      empleado,
+      registros,
+      mes,
+      año,
+      empleadoAdmin: req.empleado,
+      pagination: { page, totalPages },
+      query: req.query,
+    });
   } catch (error) {
     console.error('Error al obtener los registros del empleado:', error);
     req.session.mensaje = 'Error al obtener los registros del empleado';
@@ -101,13 +125,13 @@ exports.descargarRegistrosExcel = async (req, res) => {
 
 exports.mostrarFormularioAlta = (req, res) => {
   res.render('admin/altaEmpleado', {
-    empleadoAdmin: req.empleado, // Pasar el empleado autenticado
+    empleadoAdmin: req.empleado, // Usuario autenticado
     mensaje: req.session.mensaje || null,
     tipoMensaje: req.session.tipoMensaje || null,
-    valoresPrevios: req.session.valoresPrevios || {},
+    valoresPrevios: req.session.valoresPrevios || {}, // Pasar valores previos o un objeto vacío
   });
 
-  // Limpiar mensaje de sesión
+  // Limpiar mensaje de sesión y valores previos
   req.session.mensaje = null;
   req.session.tipoMensaje = null;
   req.session.valoresPrevios = null;
@@ -130,6 +154,7 @@ exports.crearEmpleado = async (req, res) => {
           ? 'El DNI ya está en uso.'
           : 'El correo electrónico ya está en uso.';
 
+      // Guardar los valores introducidos en la sesión
       req.session.mensaje = mensajeError;
       req.session.tipoMensaje = 'error';
       req.session.valoresPrevios = { dni, nombre, apellidos, email, puesto, isAdmin };
@@ -157,6 +182,7 @@ exports.crearEmpleado = async (req, res) => {
   } catch (error) {
     console.error('Error al crear el empleado:', error);
 
+    // Guardar los valores introducidos en la sesión en caso de error
     req.session.mensaje = 'Ocurrió un error al intentar crear el empleado.';
     req.session.tipoMensaje = 'error';
     req.session.valoresPrevios = { dni, nombre, apellidos, email, puesto, isAdmin };
@@ -181,11 +207,13 @@ exports.mostrarFormularioEdicion = async (req, res) => {
       empleado,
       mensaje: req.session.mensaje || null,
       tipoMensaje: req.session.tipoMensaje || null,
+      valoresPrevios: req.session.valoresPrevios || {}, // Pasar valores previos o un objeto vacío
     });
 
-    // Limpiar mensaje de sesión
+    // Limpiar mensaje de sesión y valores previos
     req.session.mensaje = null;
     req.session.tipoMensaje = null;
+    req.session.valoresPrevios = null;
   } catch (error) {
     console.error('Error al cargar el formulario de edición:', error);
     req.session.mensaje = 'Ocurrió un error al cargar el formulario de edición.';
@@ -249,5 +277,25 @@ exports.editarEmpleado = async (req, res) => {
     req.session.mensaje = 'Ocurrió un error al intentar actualizar el empleado.';
     req.session.tipoMensaje = 'error';
     res.redirect(`/admin/empleados/${id}/editar`);
+  }
+};
+
+exports.obtenerPuestos = async (req, res) => {
+  try {
+    // Obtener los valores únicos de "puesto" desde la base de datos
+    const puestos = await Empleado.findAll({
+      attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('puesto')), 'puesto']],
+      where: {
+        puesto: {
+          [Sequelize.Op.ne]: null, // Excluir valores nulos
+        },
+      },
+    });
+
+    // Devolver los puestos como un array de strings
+    res.json(puestos.map((p) => p.puesto));
+  } catch (error) {
+    console.error('Error al obtener los puestos:', error);
+    res.status(500).json({ error: 'Error al obtener los puestos' });
   }
 };

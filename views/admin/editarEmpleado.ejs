@@ -72,8 +72,10 @@
           class="form-control"
           id="puesto"
           name="puesto"
-          value="<%= empleado.puesto %>"
+          list="puestos"
+          value="<%= valoresPrevios?.puesto || empleado?.puesto || '' %>"
         >
+        <datalist id="puestos"></datalist>
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Nueva Contraseña (opcional)</label>
@@ -107,4 +109,5 @@
   </div>
 </body>
 <script src="/js/togglePassword.js"></script>
+<script src="/js/cargarOpcionesPuestos.js"></script>
 </html>

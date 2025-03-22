@@ -36,22 +36,47 @@
       <a href="/registros/descargar/pdf" class="btn btn-danger">Descargar PDF</a>
     </div>
 
+    <!-- Tabla de registros -->
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Fecha de Entrada</th>
-          <th>Fecha de Salida</th>
+          <th>Entrada</th>
+          <th>Salida</th>
         </tr>
       </thead>
       <tbody>
         <% paresRegistros.forEach(par => { %>
           <tr>
-            <td><%= par.entrada.fechaHora.toLocaleString('es-ES') %></td>
-            <td><%= par.salida ? par.salida.fechaHora.toLocaleString('es-ES') : '' %></td>
+            <td><%= par.entrada ? par.entrada.createdAt.toLocaleString('es-ES') : 'N/A' %></td>
+            <td><%= par.salida ? par.salida.createdAt.toLocaleString('es-ES') : 'N/A' %></td>
           </tr>
         <% }) %>
       </tbody>
     </table>
+
+    <!-- Controles de paginación -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <p>Mostrando página <%= pagination.page %> de <%= pagination.totalPages %></p>
+      <nav>
+        <ul class="pagination">
+          <% if (pagination.page > 1) { %>
+            <li class="page-item">
+              <a class="page-link" href="?page=<%= pagination.page - 1 %>&limit=<%= query.limit || 10 %>&mes=<%= mes %>&año=<%= año %>">Anterior</a>
+            </li>
+          <% } %>
+          <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+            <li class="page-item <%= i === pagination.page ? 'active' : '' %>">
+              <a class="page-link" href="?page=<%= i %>&limit=<%= query.limit || 10 %>&mes=<%= mes %>&año=<%= año %>"><%= i %></a>
+            </li>
+          <% } %>
+          <% if (pagination.page < pagination.totalPages) { %>
+            <li class="page-item">
+              <a class="page-link" href="?page=<%= pagination.page + 1 %>&limit=<%= query.limit || 10 %>&mes=<%= mes %>&año=<%= año %>">Siguiente</a>
+            </li>
+          <% } %>
+        </ul>
+      </nav>
+    </div>
   </div>
 </body>
 </html>
