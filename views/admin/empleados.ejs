@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Empleados</title>
   <link rel="stylesheet" href="/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet"
+>
   <script src="/js/bootstrap.bundle.min.js"></script>
   <script>
     function sortTable(column) {
@@ -29,6 +30,18 @@
 
   <div class="container mt-5">
     <h1 class="text-center">Lista de Empleados</h1>
+
+    <!-- Mostrar mensaje de sesión si existe -->
+    <% if (mensaje) { %>
+      <div class="alert alert-<%= tipoMensaje === 'success' ? 'success' : 'danger' %> alert-dismissible fade show" role="alert">
+        <%= mensaje %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% } %>
+
+    <div class="mb-3 text-end">
+      <a href="/admin/empleados/nuevo" class="btn btn-success">Dar de Alta Nuevo Empleado</a>
+    </div>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -39,7 +52,7 @@
           <th><a href="#" onclick="sortTable('dni')">DNI</a></th>
           <th><a href="#" onclick="sortTable('puesto')">Puesto</a></th>
           <th><a href="#" onclick="sortTable('isAdmin')">Administrador</a></th>
-          <th>Opciones</th> <!-- Nueva columna -->
+          <th>Opciones</th>
         </tr>
       </thead>
       <tbody>
@@ -53,11 +66,9 @@
             <td><%= empleado.puesto %></td>
             <td><%= empleado.isAdmin ? 'Sí' : 'No' %></td>
             <td>
-              <!-- Ícono para editar usuario -->
               <a href="/admin/empleados/<%= empleado.id %>/editar" class="text-primary me-2" title="Editar usuario">
                 <i class="fas fa-edit"></i>
               </a>
-              <!-- Ícono para mostrar registros -->
               <a href="/admin/empleados/<%= empleado.id %>/registros" class="text-success" title="Mostrar registros">
                 <i class="fas fa-list"></i>
               </a>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Empleado</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <%- include('../partials/menu', { empleado: empleadoAdmin }) %>
+
+  <div class="container mt-5">
+    <h1 class="text-center">Editar Empleado</h1>
+
+    <% if (mensaje) { %>
+      <div class="alert alert-<%= tipoMensaje === 'error' ? 'danger' : 'success' %>">
+        <%= mensaje %>
+      </div>
+    <% } %>
+
+    <form action="/admin/empleados/<%= empleado.id %>/editar" method="POST" class="mt-4">
+      <div class="mb-3">
+        <label for="dni" class="form-label">DNI</label>
+        <input
+          type="text"
+          class="form-control"
+          id="dni"
+          name="dni"
+          value="<%= empleado.dni %>"
+          required
+        >
+      </div>
+      <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <input
+          type="text"
+          class="form-control"
+          id="nombre"
+          name="nombre"
+          value="<%= empleado.nombre %>"
+          required
+        >
+      </div>
+      <div class="mb-3">
+        <label for="apellidos" class="form-label">Apellidos</label>
+        <input
+          type="text"
+          class="form-control"
+          id="apellidos"
+          name="apellidos"
+          value="<%= empleado.apellidos %>"
+          required
+        >
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Correo Electrónico</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          name="email"
+          value="<%= empleado.email %>"
+          required
+        >
+      </div>
+      <div class="mb-3">
+        <label for="puesto" class="form-label">Puesto</label>
+        <input
+          type="text"
+          class="form-control"
+          id="puesto"
+          name="puesto"
+          value="<%= empleado.puesto %>"
+        >
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Nueva Contraseña (opcional)</label>
+        <div class="input-group">
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+          >
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            id="togglePassword"
+            title="Mostrar/Ocultar contraseña"
+          >
+            <i class="fas fa-eye" id="passwordIcon"></i>
+          </button>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="isAdmin" class="form-label">¿Es Administrador?</label>
+        <select class="form-select" id="isAdmin" name="isAdmin">
+          <option value="false" <%= !empleado.isAdmin ? 'selected' : '' %>>No</option>
+          <option value="true" <%= empleado.isAdmin ? 'selected' : '' %>>Sí</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      <a href="/admin/empleados" class="btn btn-secondary">Cancelar</a>
+    </form>
+  </div>
+</body>
+<script src="/js/togglePassword.js"></script>
+</html>
