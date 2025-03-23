@@ -6,6 +6,7 @@ const session = require('express-session');
 const jwt = require('jsonwebtoken');
 const sequelize = require('./database');
 const verificarToken = require('./middlewares/verificarToken');
+const requireAuth = require('./middlewares/requireAuth');
 const logController = require('./middlewares/logController');
 const logger = require('./utils/logger');
 
@@ -26,19 +27,33 @@ app.use(session({
   cookie: { secure: false } // Cambia a true si usas HTTPS
 }));
 
-// Middleware para verificar el token
-app.use(verificarToken);
-
-// Middleware para registrar los controladores ejecutados
-app.use(logController);
-
 // Servir archivos estáticos (CSS, imágenes, JS) desde la carpeta public
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use('/css', express.static('public/css'));
 app.use('/js', express.static('public/js'));
 
+// Middleware para verificar el token y establecer req.empleado
+app.use(verificarToken);
+
+// Middleware para redirigir a login si no está autenticado
+app.use(requireAuth);
+
+// Middleware para registrar los controladores ejecutados
+app.use(logController);
+
 // Monta las rutas
 app.use('/', require('./routes/index')); // Monta el archivo de rutas principal
+
+// Middleware para manejar rutas no encontradas
+app.use((req, res, next) => {
+  if (!req.empleado) {
+    // Si el usuario no está autenticado, redirigir al login
+    return res.redirect('/auth/login');
+  }
+
+  // Si el usuario está autenticado, redirigir al dashboard
+  res.redirect('/dashboard');
+});
 
 // Middleware para manejar errores globales
 app.use((err, req, res, next) => {
