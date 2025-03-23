@@ -1,28 +1,28 @@
 const jwt = require('jsonwebtoken');
-const Empleado = require('../models/empleado');
 
-module.exports = async (req, res, next) => {
-  const token = req.cookies.token;
-
-  if (!token) {
-    req.empleado = null; // Asegurarse de que req.empleado esté definido
-    return next();
-  }
-
+module.exports = (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const empleado = await Empleado.findByPk(decoded.id);
-
-    if (!empleado) {
-      req.empleado = null;
+    // Excluir la ruta de login del middleware
+    if (req.path === '/auth/login') {
       return next();
     }
 
-    req.empleado = empleado; // Agregar el empleado autenticado al objeto req
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.redirect('/auth/login');
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.empleado = decoded; // Asegúrate de que `decoded` contenga la información del empleado
+
+    if (!req.empleado) {
+      return res.status(401).send('Acceso no autorizado. Información del empleado no encontrada.');
+    }
+
     next();
   } catch (error) {
     console.error('Error al verificar el token:', error);
-    req.empleado = null;
-    next();
+    res.redirect('/auth/login');
   }
 };

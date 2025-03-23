@@ -14,7 +14,9 @@
   <div class="container mt-5">
     <div class="row">
       <div class="col-md-12">
-        <h1 class="text-center">¡Bienvenid@, <%= empleado.nombre %> <%= empleado.apellidos %>!</h1>
+        <h1 class="text-center">
+          ¡Bienvenid@, <%= empleado?.nombre || 'Usuario' %> <%= empleado?.apellidos || '' %>!
+        </h1>
         <h2 class="text-center">Registro de Fichaje</h2>
       </div>
     </div>
@@ -27,12 +29,12 @@
 
     <div class="row mt-4">
       <div class="col-md-6">
-        <form action="/api/empleados/<%= empleado.id %>/entrada" method="POST">
+        <form action="/api/empleados/<%= empleado?.id %>/entrada" method="POST">
           <button type="submit" class="btn btn-success btn-block w-100">Registrar Entrada</button>
         </form>
       </div>
       <div class="col-md-6">
-        <form action="/api/empleados/<%= empleado.id %>/salida" method="POST">
+        <form action="/api/empleados/<%= empleado?.id %>/salida" method="POST">
           <button type="submit" class="btn btn-danger btn-block w-100">Registrar Salida</button>
         </form>
       </div>

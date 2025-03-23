@@ -3,8 +3,6 @@ const path = require('path');
 const favicon = require('serve-favicon');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const jwt = require('jsonwebtoken');
-const sequelize = require('./database');
 const verificarToken = require('./middlewares/verificarToken');
 const logController = require('./middlewares/logController');
 const logger = require('./utils/logger');
@@ -14,6 +12,11 @@ const app = express();
 // Configura EJS como motor de vistas
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// Servir archivos estáticos (CSS, imágenes, JS) desde la carpeta public
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use('/css', express.static('public/css'));
+app.use('/js', express.static('public/js'));
 
 // Middlewares para parsear formularios, JSON y cookies
 app.use(express.urlencoded({ extended: true }));
@@ -26,16 +29,11 @@ app.use(session({
   cookie: { secure: false } // Cambia a true si usas HTTPS
 }));
 
-// Middleware para verificar el token
-app.use(verificarToken);
-
 // Middleware para registrar los controladores ejecutados
 app.use(logController);
 
-// Servir archivos estáticos (CSS, imágenes, JS) desde la carpeta public
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use('/css', express.static('public/css'));
-app.use('/js', express.static('public/js'));
+// Middleware para verificar el token
+app.use(verificarToken);
 
 // Monta las rutas
 app.use('/', require('./routes/index')); // Monta el archivo de rutas principal
