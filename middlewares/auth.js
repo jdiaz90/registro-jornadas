@@ -5,7 +5,7 @@ module.exports = async (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) {
-    req.empleado = null; // Asegurarse de que req.empleado esté definido
+    req.empleado = null;
     return next();
   }
 
@@ -14,15 +14,16 @@ module.exports = async (req, res, next) => {
     const empleado = await Empleado.findByPk(decoded.id);
 
     if (!empleado) {
+      console.error('Empleado no encontrado para el ID:', decoded.id);
       req.empleado = null;
       return next();
     }
 
-    req.empleado = empleado; // Agregar el empleado autenticado al objeto req
+    req.empleado = empleado;
     next();
   } catch (error) {
     console.error('Error al verificar el token:', error);
     req.empleado = null;
-    next();
+    next(); // Crucial: Continue processing even on error
   }
 };
