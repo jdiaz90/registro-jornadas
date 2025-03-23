@@ -1,10 +1,9 @@
-// routes/auth.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const verificarNoAutenticado = require('../middlewares/verificarNoAutenticado');
+const auth = require('../middlewares/auth'); // Importando el middleware unificado
 
-router.get('/login', verificarNoAutenticado, authController.showLogin);
+router.get('/login', auth, authController.showLogin); // auth para evitar acceso si ya está logueado
 router.post('/login', authController.login);
 router.get('/logout', authController.logout);
 

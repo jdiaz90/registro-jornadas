@@ -3,11 +3,9 @@ const router = express.Router();
 const registrosController = require('../controllers/registrosController');
 const descargarPdfController = require('../controllers/descargarPdfController');
 const descargarXlsxController = require('../controllers/descargarXlsxController');
-const verificarToken = require('../middlewares/verificarToken');
+const auth = require('../middlewares/auth'); // Importando el middleware unificado
 
-router.get('/', verificarToken, registrosController.showRegistros);
-router.get('/descargar/xlsx', verificarToken, descargarXlsxController.descargarXlsx);
-// Ruta para que un empleado descargue sus propios registros en PDF
-router.get('/descargar/pdf', verificarToken, descargarPdfController.descargarPdf);
-
+router.get('/', auth, registrosController.showRegistros);
+router.get('/descargar/xlsx', auth, descargarXlsxController.descargarXlsx);
+router.get('/descargar/pdf', auth, descargarPdfController.descargarPdf);
 module.exports = router;

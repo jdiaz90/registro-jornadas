@@ -3,8 +3,8 @@ const router = express.Router();
 const adminController = require('../controllers/adminController');
 const descargarPdfController = require('../controllers/descargarPdfController');
 const descargarXlsxController = require('../controllers/descargarXlsxController');
-const verificarToken = require('../middlewares/verificarToken');
-const verificarAdmin = require('../middlewares/verificarAdmin');
+const verificarToken = require('../middlewares/auth');
+const verificarAdmin = require('../middlewares/adminAuth');
 
 router.get('/empleados', verificarToken, verificarAdmin, adminController.verEmpleados);
 router.get('/empleados/:id/registros', verificarToken, verificarAdmin, adminController.verRegistrosEmpleado);

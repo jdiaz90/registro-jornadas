@@ -3,10 +3,7 @@ const path = require('path');
 const favicon = require('serve-favicon');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const jwt = require('jsonwebtoken');
-const sequelize = require('./database');
-const verificarToken = require('./middlewares/verificarToken');
-const requireAuth = require('./middlewares/requireAuth');
+const auth = require('./middlewares/auth');
 const logController = require('./middlewares/logController');
 const logger = require('./utils/logger');
 
@@ -21,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({
-  secret: 'your_secret_key', // Cambia esto por una clave secreta segura
+  secret: 'your_secret_key', // Cambia esto por una clave secreta segura y aleatoria
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false } // Cambia a true si usas HTTPS
@@ -29,59 +26,40 @@ app.use(session({
 
 // Servir archivos estáticos (CSS, imágenes, JS) desde la carpeta public
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use('/css', express.static('public/css'));
-app.use('/js', express.static('public/js'));
-
-// Middleware para verificar el token y establecer req.empleado
-app.use(verificarToken);
-
-// Middleware para redirigir a login si no está autenticado
-app.use(requireAuth);
+app.use(express.static(path.join(__dirname, 'public'))); // Simplificado
 
 // Middleware para registrar los controladores ejecutados
 app.use(logController);
 
+// Middleware de autenticación (aplicado a todas las rutas excepto /auth)
+app.use(auth);
+
+
 // Monta las rutas
-app.use('/', require('./routes/index')); // Monta el archivo de rutas principal
+app.use('/', require('./routes/index'));
 
-// Middleware para manejar rutas no encontradas
-app.use((req, res, next) => {
-  if (!req.empleado) {
-    // Si el usuario no está autenticado, redirigir al login
-    return res.redirect('/auth/login');
-  }
-
-  // Si el usuario está autenticado, redirigir al dashboard
-  res.redirect('/dashboard');
+// Manejo de rutas no encontradas
+app.use((req, res) => {
+  res.status(404).render('errors/404'); // Renderiza una vista de error 404
 });
 
-// Middleware para manejar errores globales
+// Manejo de errores globales
 app.use((err, req, res, next) => {
-  const now = new Date();
-  const localTime = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); // Ajuste de +1 hora
-
-  logger.error(`[EXCEPTION] [${localTime}] ${err.message}`);
-  logger.error(`[STACK TRACE] ${err.stack}`);
-
-  res.status(500).send('Ocurrió un error inesperado. Por favor, inténtalo más tarde.');
+  logger.error(`[EXCEPTION] ${err.message}\n${err.stack}`);
+  res.status(500).render('errors/500'); // Renderiza una vista de error 500
 });
 
+// Manejo de promesas rechazadas
 process.on('unhandledRejection', (reason, promise) => {
-  const now = new Date();
-  const localTime = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); // Ajuste de +1 hora
-
-  logger.error(`[UNHANDLED REJECTION] [${localTime}] ${reason}`);
+  logger.error(`[UNHANDLED REJECTION] ${reason}`);
 });
 
+// Manejo de excepciones no capturadas
 process.on('uncaughtException', (error) => {
-  const now = new Date();
-  const localTime = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); // Ajuste de +1 hora
-
-  logger.error(`[UNCAUGHT EXCEPTION] [${localTime}] ${error.message}`);
-  logger.error(`[STACK TRACE] ${error.stack}`);
-  process.exit(1); // Salir del proceso después de registrar la excepción
+  logger.error(`[UNCAUGHT EXCEPTION] ${error.message}\n${error.stack}`);
+  process.exit(1);
 });
 
-// Inicia el servidor en el puerto definido o 3000 por defecto.
+// Inicia el servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor escuchando en http://localhost:${PORT}`));

@@ -2,13 +2,12 @@ const Empleado = require('../models/empleado');
 const Registro = require('../models/registro');
 const { Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
-const fs = require('fs'); // Para registrar errores en un archivo de log
 
 exports.verEmpleados = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Página actual (por defecto 1)
-    const limit = parseInt(req.query.limit) || 10; // Elementos por página (por defecto 10)
-    const offset = (page - 1) * limit; // Calcular el desplazamiento
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
 
     const { count, rows: empleados } = await Empleado.findAndCountAll({
       order: [[req.query.sort || 'id', req.query.order === 'desc' ? 'DESC' : 'ASC']],
@@ -31,7 +30,7 @@ exports.verEmpleados = async (req, res) => {
     req.session.tipoMensaje = null;
   } catch (error) {
     console.error('Error al obtener la lista de empleados:', error);
-    res.status(500).send('Error al obtener la lista de empleados.');
+    res.status(500).render('errors/500', { error: 'Error al obtener la lista de empleados.' });
   }
 };
 

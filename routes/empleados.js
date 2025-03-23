@@ -1,11 +1,7 @@
-// routes/empleados.js
 const express = require('express');
 const router = express.Router();
 const empleadoController = require('../controllers/empleadoController');
-const verificarToken = require('../middlewares/verificarToken');
+const auth = require('../middlewares/auth'); // Importando el middleware unificado
 
-// Ruta unificada para entrada y salida
-router.post('/:id/registro', verificarToken, empleadoController.registrarEntradaSalida);
-
-
+router.post('/:id/registro', auth, empleadoController.registrarEntradaSalida);
 module.exports = router;

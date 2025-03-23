@@ -7,7 +7,7 @@ const logger = require('../utils/logger');
 exports.showLogin = (req, res) => {
   const error = req.session.error || null;
   req.session.error = null; // Limpiar el mensaje de error después de mostrarlo
-  res.render('login', { error, empleado: null });
+  res.render('auth/login', { error, empleado: null });
 };
 
 exports.login = async (req, res) => {
