@@ -4,8 +4,8 @@ const router = express.Router();
 const empleadoController = require('../controllers/empleadoController');
 const verificarToken = require('../middlewares/verificarToken');
 
-router.post('/', empleadoController.createEmpleado);
-router.post('/:id/entrada', verificarToken, empleadoController.registrarEntrada);
-router.post('/:id/salida', verificarToken, empleadoController.registrarSalida);
+// Ruta unificada para entrada y salida
+router.post('/:id/registro', verificarToken, empleadoController.registrarEntradaSalida);
+
 
 module.exports = router;
